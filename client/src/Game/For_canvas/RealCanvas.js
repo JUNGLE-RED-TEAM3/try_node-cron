@@ -244,6 +244,7 @@ const RealCanvas = ({mySessionId, myUserName}) => {
          // MRSEO: 
         return () => {
             socketRef.current.off('drawing', onDrawingEvent);
+            socketRef.current.off('clearCanvas', clearCanvas);
             canvas.removeEventListener('mousedown', onMouseDown, false);
             canvas.removeEventListener('mousemove', throttle(onMouseMove, 10), false);
             canvas.removeEventListener('mouseup', onMouseUp, false);

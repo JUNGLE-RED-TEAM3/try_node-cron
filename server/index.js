@@ -11,6 +11,7 @@ const server = http.createServer(app);
 // MRSEO: timer 추가
 const timerModule = require('./timer');
 const spyTimerModule = require('./spyTimer');
+const countdownTimerModule = require('./countdownTimer');
 
 // ---- openvidu env
 const SERVER_PORT = process.env.SERVER_PORT || 5050;
@@ -187,6 +188,25 @@ io.on('connection', (socket) => {
     return indexOfMaxValue;
   }
 
+  socket.on('spyCountdownUpdate', (time, round, spyPlayer) => {
+    console.log('spyCountdownUpdate_server');
+    countdownTimerModule.startTimer(io, time, () => {
+      if (round === 1) {
+        console.log('finishSpyCountdown_server1');
+        io.emit('finishSpyCountdown1', spyPlayer);
+      } else if (round === 2) {
+        console.log('finishSpyCountdown_server2');
+        io.emit('finishSpyCountdown2', spyPlayer);
+      } else if (round === 3) {
+        console.lon('finishSpyCountdown_server3')
+        io.emit('finishSpyCountdown3', spyPlayer);
+      } else if (round === 4) {
+        console.lon('finishSpyCountdown_server4')
+        io.emit('finishSpyCountdown4', spyPlayer);
+      }
+    })
+  });
+
   //1번 대기
   socket.on('spy1Ready', () => {
     console.log('spy1Ready');
@@ -324,13 +344,21 @@ io.on('connection', (socket) => {
 });
 
 const clearvar = () => {
+  // if (timerModule.getIntervalId()) {
+  //   console.log('타이머 종료');
+  //   clearInterval(timerModule.getIntervalId());
+  // }
+  // if (spyTimerModule.getIntervalId()) {
+  //   console.log('타이머 종료');
+  //   clearInterval(spyTimerModule.getIntervalId());
+  // }
   if (timerModule.getIntervalId()) {
     console.log('타이머 종료');
-    clearInterval(timerModule.getIntervalId());
+    timerModule.getTask().stop();
   }
   if (spyTimerModule.getIntervalId()) {
     console.log('타이머 종료');
-    clearInterval(spyTimerModule.getIntervalId());
+    spyTimerModule.getTask().stop();
   }
   redScore = 0;
   blueScore = 0;

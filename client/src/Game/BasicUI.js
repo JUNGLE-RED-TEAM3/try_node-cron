@@ -79,7 +79,7 @@ function BasicUI() {
     socket.on("hostSetting", () => {
       setHost(gamers[0].name)
     });
-  },[socket]);
+  },[socket, gamers]);
 
   const showCompetitionDescription = () => {
     clickCategory();

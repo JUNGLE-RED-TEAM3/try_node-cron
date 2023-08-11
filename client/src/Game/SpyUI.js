@@ -107,6 +107,7 @@ const SpyUI = () => {
   //YEONGWOO: 스파이 모드 에서 현재 그리는 사람, 현재 라운드
   const [currentPainterId, setCurrentPainterId] = useState(null);
   const [currentRound, setCurrentRound] = useState(-1);
+  const [count, setCount] = useState(3);
 
   useEffect(() => {
     if (gamers.length === 4) {
@@ -126,6 +127,13 @@ const SpyUI = () => {
       setSpyTimerValue(value);
     };
 
+    const spyCountdownUpdateHandler = (value) => {
+      console.log('spyCountdownUpdateHandler_client@@@@@@@@@@@@@@@@');
+      setCount(value);
+    };
+
+    socket.on('spyCountdownUpdate', spyCountdownUpdateHandler);
+
     socket.on('spy1GO', (spyPlayer1, spy, spyPlayers) => {
       console.log('spy1GO');
       console.log(spy)
@@ -142,17 +150,26 @@ const SpyUI = () => {
       }
 
       setSpyCountdown(true);
+      console.log(gamers)
+      if (gamers[0].name === myUserId) {
+        console.log('spyCountdownUpdate', myUserId, gamers[0].name)
+        socket.emit('spyCountdownUpdate', 2, 1, spyPlayer1);
+      }
       setCurrentPainterId(gamers[spyPlayer1].name);
+      
+    });
 
-      setTimeout(() => {
-        setSpyCountdown(false);
-        if (gamers[spyPlayer1].name === myUserId) {
-          setSpyPainter(true);
-        }
-        if (gamers[0].name === myUserId) {
-          socket.emit('startSpyTimer1', spyPlayer1);
-        }
-      }, 3000);
+    socket.on('finishSpyCountdown1', (spyPlayer1) => {
+      setSpyCountdown(false);
+      setCount(3);
+      if (gamers[spyPlayer1].name === myUserId) {
+        setSpyPainter(true);
+      }
+      console.log('b4StartSpyTimer1', myUserId, gamers[0].name)
+      if (host === myUserId) {
+        console.log('startSpyTimer1 By : ', myUserId)
+        socket.emit('startSpyTimer1', spyPlayer1);
+      }
     });
 
     socket.on('spyTimer1End', (spyPlayer1) => {
@@ -169,18 +186,23 @@ const SpyUI = () => {
       console.log('spy2GO');
 
       setSpyCountdown(true);
+      setCount(3);
+      if (gamers[0].name === myUserId) {
+        socket.emit('spyCountdownUpdate', 2, 2, spyPlayer2);
+      }
       setCurrentPainterId(gamers[spyPlayer2].name);
+    });
 
-      setTimeout(() => {
-        setSpyCountdown(false);
-        console.log("spyPlayer2 : " + spyPlayer2);
-        if (gamers[spyPlayer2].name === myUserId) {
-          setSpyPainter(true);
-        }
-        if (gamers[0].name === myUserId) {
-          socket.emit('startSpyTimer2', spyPlayer2);
-        }
-      }, 3000);
+    socket.on('finishSpyCountdown2', (spyPlayer2) => {
+      setSpyCountdown(false);
+      setCount(3);
+      console.log("spyPlayer2 : " + spyPlayer2);
+      if (gamers[spyPlayer2].name === myUserId) {
+        setSpyPainter(true);
+      }
+      if (gamers[0].name === myUserId) {
+        socket.emit('startSpyTimer2', spyPlayer2);
+      }
     });
 
     socket.on('spyTimer2End', (spyPlayer2) => {
@@ -197,17 +219,21 @@ const SpyUI = () => {
       console.log('spy3GO');
 
       setSpyCountdown(true);
+      if (gamers[0].name === myUserId) {
+        socket.emit('spyCountdownUpdate', 2, 3, spyPlayer3);
+      }
       setCurrentPainterId(gamers[spyPlayer3].name);
+    });
 
-      setTimeout(() => {
-        setSpyCountdown(false);
-        if (gamers[spyPlayer3].name === myUserId) {
-          setSpyPainter(true);
-        }
-        if (gamers[0].name === myUserId) {
-          socket.emit('startSpyTimer3', spyPlayer3);
-        }
-      }, 3000);
+    socket.on('finishSpyCountdown3', (spyPlayer3) => {
+      setSpyCountdown(false);
+      setCount(3);
+      if (gamers[spyPlayer3].name === myUserId) {
+        setSpyPainter(true);
+      }
+      if (gamers[0].name === myUserId) {
+        socket.emit('startSpyTimer3', spyPlayer3);
+      }
     });
 
     socket.on('spyTimer3End', (spyPlayer3) => {
@@ -224,17 +250,22 @@ const SpyUI = () => {
       console.log('spy4GO');
 
       setSpyCountdown(true);
+      setCount(3);
+      if (gamers[0].name === myUserId) {
+        socket.emit('spyCountdownUpdate', 2, 4, spyPlayer4);
+      }
       setCurrentPainterId(gamers[spyPlayer4].name);
+    });
 
-      setTimeout(() => {
-        if (gamers[spyPlayer4].name === myUserId) {
-          setSpyPainter(true);
-        }
-        setSpyCountdown(false);
-        if (gamers[0].name === myUserId) {
-          socket.emit('startSpyTimer4', spyPlayer4);
-        }
-      }, 3000);
+    socket.on('finishSpyCountdown4', (spyPlayer4) => {
+      if (gamers[spyPlayer4].name === myUserId) {
+        setSpyPainter(true);
+      }
+      setSpyCountdown(false);
+      setCount(3);
+      if (gamers[0].name === myUserId) {
+        socket.emit('startSpyTimer4', spyPlayer4);
+      }
     });
 
     socket.on('spyTimer4End', (spyPlayer4) => {
@@ -303,6 +334,10 @@ const SpyUI = () => {
       socket.off('spyWinBySubmit');
       socket.off('spyFinish');
       socket.off('updateCurrentPainterId');
+      socket.off('finishSpyCountdown1');
+      socket.off('finishSpyCountdown2');
+      socket.off('finishSpyCountdown3');
+      socket.off('finishSpyCountdown4');
     }
 
   }, [socket, myUserId, gamers]);
@@ -374,6 +409,10 @@ const SpyUI = () => {
       socket.off('spyVoteResult');
       socket.off('spyFinish');
       socket.off('updateCurrentPainterId');
+      socket.off('finishSpyCountdown1');
+      socket.off('finishSpyCountdown2');
+      socket.off('finishSpyCountdown3');
+      socket.off('finishSpyCountdown4');
     }
   };
 
@@ -399,6 +438,7 @@ const SpyUI = () => {
     setShowSpy('');
     setCurrentPainterId(null);
     setCurrentRound(-1);
+    setCount(3);
     //JANG: 08.09 - 스파이 모드 시작 버튼 눌렀을 때
     setStartButton(false);
   };

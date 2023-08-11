@@ -284,11 +284,11 @@ const Webcam = () => {
 
 
   //MRSEO: host 설정
-  useEffect(() => {
-    if (gamers.length === 0) return;
-    console.log("host 설정")
-    setHost(gamers[0].name);
-  }, [gamers]);
+  // useEffect(() => {
+  //   if (gamers.length === 0) return;
+  //   console.log("host 설정")
+  //   setHost(gamers[0].name);
+  // }, [gamers]);
 
   // MRSEO: 게임 시작 버튼을 누른 후, 플레이어 상태 초기화
   useEffect(() => {
